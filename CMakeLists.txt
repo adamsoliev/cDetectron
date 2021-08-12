@@ -9,6 +9,6 @@ include_directories(./include/)
 
 add_subdirectory(../../ThirdPartySoftwares/glfw-3.3.4 cmake-build-debug)
 
-add_executable(cDetectron main.cpp src/glad.c)
+add_executable(cDetectron main.cpp src/glad.c include/ShaderManager.h include/stb_image.h)
 
 target_link_libraries(cDetectron glfw)
