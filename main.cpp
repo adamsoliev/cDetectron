@@ -4,11 +4,6 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/string_cast.hpp>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 // STL
 #include <iostream>
@@ -22,13 +17,15 @@
 #include "Setup.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
+#include "Mesh.h"
+#include "Model.h"
 
 int main() {
 
     Setup setup;
 
+
     // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
@@ -46,25 +43,26 @@ int main() {
     ShaderManager coordSystemShader("./assets/shaders/basic.vert",
                                  "./assets/shaders/basic.frag");
 
-    // **********
-    ShaderManager planeShader("./assets/shaders/advanced.vert",
-                              "./assets/shaders/advanced.frag");
+    // ShaderManager planeShader("./assets/shaders/advanced.vert",
+    // "./assets/shaders/advanced.frag");
 
     // world space positions of our cubes
     glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(4.0f, 0.0f, 0.0f)
+        glm::vec3(-4.0f, 1.0f, 0.0f),
+        glm::vec3(4.0f, 2.0f, 0.0f)
     };
 
 
     TextureManager woodTexture("assets/images/container.jpg");
-    TextureManager grassTexture("assets/images/grass.png");
+    // TextureManager grassTexture("assets/images/grass.png");
 
     woodBoxShader.use();
     woodBoxShader.setInt("textureGeneral", 0);
 
+    /*
     planeShader.use();
     planeShader.setInt("textureGeneral", 1);
+     */
 
     CoordSystem coordSystem;
 
@@ -72,20 +70,17 @@ int main() {
     LightSource lightSource;
     // PlaneTextured planeTextured;
 
+    Model ourModel("assets/models/backpack/backpack.obj");
     // render loop
-    // -----------
     while (!glfwWindowShouldClose(setup._window)) {
 
-        // per-frame time logic
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        setup.updateCamera();
 
         // input
         processInput(setup._window);
 
         // render
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         // also clear the depth buffer now!
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -96,6 +91,7 @@ int main() {
             0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
+        // render light source box
         lightSourceShader.use();
         glm::vec3 lightPos(0.0f, 5.0f, 5.0f);
         model = glm::translate(model, lightPos);
@@ -106,15 +102,15 @@ int main() {
         lightSourceShader.setMat4("model", model);
         lightSource.draw(GL_TRIANGLES, 36);
 
-        // render boxes
+        // render wood box
         woodBoxShader.use();
         woodBoxShader.setVec3("light_color", glm::vec3(1.0f));
         woodBoxShader.setVec3("light_pos", lightPos);
         woodBoxShader.setVec3("view_pos", camera.Position);
 
-        for (int i = 0; i < 2; ++i) {
+        for (auto & cubePosition : cubePositions) {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
+            model = glm::translate(model, cubePosition);
             model = glm::rotate(model, (float)glfwGetTime(),
                                 glm::vec3(0.0f, 1.0f, 0.0f));
             woodBoxShader.setMat4("model", model);
@@ -147,6 +143,7 @@ int main() {
         planeTextured.draw(GL_TRIANGLES, 6);
          */
 
+        // render coord system
         coordSystemShader.use();
         model = glm::mat4(1.0f);
         glm::vec3 scale = glm::vec3(10.0f, 10.0f, 10.0f);
@@ -156,7 +153,18 @@ int main() {
         coordSystemShader.setMat4("view", view);
         coordSystemShader.setMat4("model", model);
 
-        coordSystem.draw(GL_LINES, 6);
+        coordSystem.draw(GL_LINES);
+
+        // render the loaded model
+        woodBoxShader.use();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 4.0f, 0.0f)); //
+        model = glm::rotate(model, (float)glfwGetTime(),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+                                                               // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        woodBoxShader.setMat4("model", model);
+        ourModel.Draw(woodBoxShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)

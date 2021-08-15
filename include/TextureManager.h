@@ -5,6 +5,9 @@
 #ifndef CDETECTRON_TEXTUREMANAGER_H
 #define CDETECTRON_TEXTUREMANAGER_H
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 class TextureManager {
 public:
     unsigned int texture;

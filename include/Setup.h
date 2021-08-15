@@ -6,8 +6,8 @@
 #define CDETECTRON_SETUP_H
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 900;
+const unsigned int SCR_HEIGHT = 800;
 
 // camera
 CameraManager camera(glm::vec3(-9.0f, 5.0f, 8.0f));
@@ -23,7 +23,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-
 
 class Setup {
 public:
@@ -67,6 +66,13 @@ public:
     void update() const {
         glfwSwapBuffers(_window);
         glfwPollEvents();
+    }
+
+    void updateCamera() const {
+        // per-frame time logic
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
     }
 };
 
