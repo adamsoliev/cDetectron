@@ -2,23 +2,22 @@
 // Created by adam on 8/14/21.
 //
 
-#ifndef CDETECTRON_COORDSYSTEM_H
-#define CDETECTRON_COORDSYSTEM_H
+#ifndef CDETECTRON_PLANETEXTURED_H
+#define CDETECTRON_PLANETEXTURED_H
+class PlaneTextured {
 
-#include <vector>
-
-class CoordSystem {
 public:
-    CoordSystem() {
+    PlaneTextured() {
         vertices = {
-            -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // x, red
-            1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // x, red
-            0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // y, green
-            0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // y, green
-            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // z, blue
-            0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // z, blue
+            -0.5f, 0.0f, -0.5f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f,  0.0f, -0.5f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, 0.0f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, 0.0f, -0.5f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, 0.0f, 0.5f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, 0.0f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
         };
     }
+
     void init() {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -28,15 +27,19 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
-
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                               (void *)0);
         glEnableVertexAttribArray(0);
-        // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+        // texture coord attribute
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                               (void *)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // normal coord attribute
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                              (void *)(5 * sizeof(float)));
+        glEnableVertexAttribArray(2);
     }
 
     void draw(GLenum mode, GLsizei count) {
@@ -55,7 +58,6 @@ public:
 private:
     std::vector<float> vertices;
     unsigned int VAO{}, VBO{};
-
 };
 
-#endif // CDETECTRON_COORDSYSTEM_H
+#endif // CDETECTRON_PLANETEXTURED_H
