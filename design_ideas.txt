@@ -1,0 +1,4 @@
+https://stackoverflow.com/questions/166356/what-are-some-best-practices-for-opengl-coding-esp-w-r-t-object-orientation
+https://www.reddit.com/r/gamedev/comments/60a0o1/opengl_engine_core_architecture_and_efficient/
+https://stackoverflow.com/questions/9875953/opengl-and-oop-program-structure
+https://gamedev.stackexchange.com/questions/54012/manage-vbo-vao-in-a-graphic-engine
