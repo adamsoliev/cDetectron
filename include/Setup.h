@@ -52,11 +52,11 @@ public:
         }
         glfwMakeContextCurrent(_window);
         glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-        glfwSetCursorPosCallback(_window, mouse_callback);
-        glfwSetScrollCallback(_window, scroll_callback);
+        // glfwSetCursorPosCallback(_window, mouse_callback);
+        // glfwSetScrollCallback(_window, scroll_callback);
 
         // tell GLFW to capture our mouse
-        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     void terminate() {
@@ -82,7 +82,6 @@ public:
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -91,6 +90,16 @@ void processInput(GLFWwindow *window) {
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) { // mouse
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetScrollCallback(window, scroll_callback);
+    }
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) { // normal
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetCursorPosCallback(window, nullptr);
+        glfwSetScrollCallback(window, nullptr);
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback
