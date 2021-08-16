@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 // STL
 #include <iostream>
 
@@ -24,6 +28,10 @@ int main() {
 
     Setup setup;
 
+    gladLoadGL();
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(setup._window, true);
+    ImGui_ImplOpenGL3_Init("#version 430");
 
     // glad: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -46,8 +54,10 @@ int main() {
     ShaderManager coordSystemShader("./assets/shaders/basic.vert",
                                  "./assets/shaders/basic.frag");
 
-    // ShaderManager planeShader("./assets/shaders/advanced.vert",
-    // "./assets/shaders/advanced.frag");
+    /*
+    ShaderManager planeShader("./assets/shaders/advanced.vert",
+    "./assets/shaders/advanced.frag");
+     */
 
     // world space positions of our cubes
     glm::vec3 cubePositions[] = {
@@ -57,7 +67,7 @@ int main() {
 
 
     TextureManager woodTexture("assets/images/container.jpg");
-    // TextureManager grassTexture("assets/images/grass.png");
+    TextureManager grassTexture("assets/images/grass.png");
 
     woodBoxShader.use();
     woodBoxShader.setInt("textureGeneral", 0);
@@ -71,9 +81,17 @@ int main() {
 
     GeneralBox woodBox;
     LightSource lightSource;
-    // PlaneTextured planeTextured;
+    PlaneTextured planeTextured;
 
     Model ourModel("assets/models/backpack/backpack.obj");
+
+
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
     // render loop
     while (!glfwWindowShouldClose(setup._window)) {
 
@@ -81,6 +99,11 @@ int main() {
 
         // input
         processInput(setup._window);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         // render
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -126,6 +149,7 @@ int main() {
             woodBox.draw(GL_TRIANGLES, 36);
         }
 
+
         /*
         planeShader.use();
         planeShader.setVec3("light_color", glm::vec3(1.0f));
@@ -134,6 +158,7 @@ int main() {
 
         glm::vec3 scale = glm::vec3(10.0f, 10.0f, 10.0f);
         model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 4.0f)); //
         model = glm::scale(model, scale);
 
         planeShader.setMat4("projection", projection);
@@ -145,6 +170,7 @@ int main() {
 
         planeTextured.draw(GL_TRIANGLES, 6);
          */
+
 
         // render coord system
         coordSystemShader.use();
@@ -164,7 +190,8 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, 3.0f, 0.0f)); //
         model = glm::rotate(model, (float)glfwGetTime(),
                             glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));	// it's a bit
+                                                                // too big for our scene, so scale it down
         modelShader.setMat4("model", model);
         modelShader.setMat4("projection", projection);
         modelShader.setMat4("view", view);
@@ -175,10 +202,40 @@ int main() {
 
         ourModel.Draw(modelShader);
 
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
         setup.update();
     }
+
+    // ImGui Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // optional: de-allocate all resources once they've outlived their purpose:
     coordSystem.cleanUp();
