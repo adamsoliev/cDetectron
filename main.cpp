@@ -37,6 +37,9 @@ int main() {
     ShaderManager woodBoxShader("./assets/shaders/advanced.vert",
                             "./assets/shaders/advanced.frag");
 
+    ShaderManager modelShader("./assets/shaders/model.vert",
+                                "./assets/shaders/model.frag");
+
     ShaderManager lightSourceShader("./assets/shaders/lightSource.vert",
                                  "./assets/shaders/lightSource.frag");
 
@@ -93,7 +96,7 @@ int main() {
 
         // render light source box
         lightSourceShader.use();
-        glm::vec3 lightPos(0.0f, 5.0f, 5.0f);
+        glm::vec3 lightPos(0.0f, 2.0f, 5.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
 
@@ -156,15 +159,21 @@ int main() {
         coordSystem.draw(GL_LINES);
 
         // render the loaded model
-        woodBoxShader.use();
+        modelShader.use();
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 4.0f, 0.0f)); //
+        model = glm::translate(model, glm::vec3(0.0f, 3.0f, 0.0f)); //
         model = glm::rotate(model, (float)glfwGetTime(),
                             glm::vec3(0.0f, 1.0f, 0.0f));
-                                                               // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        woodBoxShader.setMat4("model", model);
-        ourModel.Draw(woodBoxShader);
+        modelShader.setMat4("model", model);
+        modelShader.setMat4("projection", projection);
+        modelShader.setMat4("view", view);
+
+        modelShader.setVec3("light_color", glm::vec3(1.0f));
+        modelShader.setVec3("light_pos", lightPos);
+        modelShader.setVec3("view_pos", camera.Position);
+
+        ourModel.Draw(modelShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
